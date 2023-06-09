@@ -4,24 +4,27 @@
 class UserModel {
   final String name;
   final String uid;
-  final String profilePic;
+  final String? profilePic;
   final bool isOnline;
   final String phoneNumber;
   final List<String> groupId;
+
+  static const fieldIsOnline = 'isOnline';
+
   UserModel({
     required this.name,
     required this.uid,
-    required this.profilePic,
     required this.isOnline,
     required this.phoneNumber,
     required this.groupId,
+    this.profilePic,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
       'uid': uid,
-      'profilePic': profilePic,
+      'profilePic': profilePic ?? '',
       'isOnline': isOnline,
       'phoneNumber': phoneNumber,
       'groupId': groupId,

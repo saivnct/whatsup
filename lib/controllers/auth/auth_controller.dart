@@ -2,8 +2,8 @@
 //Giangbb Studio
 //giangtpu@gmail.com
 import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsup/models/user_model.dart';
 import 'package:whatsup/repository/auth/auth_repository.dart';

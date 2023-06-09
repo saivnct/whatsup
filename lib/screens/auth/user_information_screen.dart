@@ -2,12 +2,14 @@
 //Giangbb Studio
 //giangtpu@gmail.com
 import 'dart:io';
-import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsup/controllers/auth/auth_controller.dart';
 import 'package:whatsup/screens/mobile_layout_screen.dart';
+import 'package:whatsup/utils/colors.dart';
 import 'package:whatsup/utils/utils.dart';
+import 'package:whatsup/widgets/auth/user_image_picker.dart';
 
 class UserInformationScreen extends ConsumerStatefulWidget {
   static const String routeName = '/user-information';
@@ -28,13 +30,8 @@ class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
     nameController.dispose();
   }
 
-  void selectImage() async {
-    final pickImage = await pickImageFromGallery(context);
-    setState(() {
-      if (pickImage != null) {
-        image = pickImage;
-      }
-    });
+  void _onSelectedImage(File imageFile) async {
+    image = imageFile;
   }
 
   void storeUserData() async {
@@ -69,36 +66,20 @@ class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Setting up your profile'),
+        elevation: 0,
+        backgroundColor: backgroundColor,
+      ),
       body: SafeArea(
         child: Center(
           child: Column(
             children: [
-              Stack(
-                children: [
-                  image == null
-                      ? const CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            'https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png',
-                          ),
-                          radius: 64,
-                        )
-                      : CircleAvatar(
-                          backgroundImage: FileImage(
-                            image!,
-                          ),
-                          radius: 64,
-                        ),
-                  Positioned(
-                    bottom: -10,
-                    left: 80,
-                    child: IconButton(
-                      onPressed: selectImage,
-                      icon: const Icon(
-                        Icons.add_a_photo,
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(
+                height: 10,
+              ),
+              UserImagePicker(
+                onSelectedImage: _onSelectedImage,
               ),
               Row(
                 children: [
@@ -108,7 +89,7 @@ class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
                     child: TextField(
                       controller: nameController,
                       decoration: const InputDecoration(
-                        hintText: 'Enter your name',
+                        hintText: 'Please enter your name',
                       ),
                     ),
                   ),

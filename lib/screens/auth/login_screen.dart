@@ -9,6 +9,7 @@ import 'package:whatsup/screens/auth/otp_screen.dart';
 import 'package:whatsup/utils/colors.dart';
 import 'package:whatsup/utils/utils.dart';
 import 'package:whatsup/widgets/custom_button.dart';
+import 'package:whatsup/widgets/custom_circular_progress_indicator.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = '/login-screen';
@@ -21,6 +22,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final phoneController = TextEditingController();
   Country? country;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,6 +33,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void pickCountry() {
     showCountryPicker(
         context: context,
+        useSafeArea: true,
+        countryListTheme: CountryListThemeData(
+          flagSize: 25,
+          backgroundColor: backgroundColor,
+          textStyle: Theme.of(context).textTheme.titleMedium,
+          // bottomSheetHeight: 500, // Optional. Country list modal height
+          //Optional. Sets the border radius for the bottomsheet.
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
+          ),
+          //Optional. Styles the search field.
+          inputDecoration: InputDecoration(
+            labelText: 'Search',
+            hintText: 'Start typing to search',
+            prefixIcon: const Icon(Icons.search),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color:
+                    Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+              ),
+            ),
+          ),
+        ),
         onSelect: (Country c) {
           setState(() {
             country = c;
@@ -39,11 +65,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void sendPhoneNumber() async {
+    FocusScope.of(context).unfocus();
     String phoneNumber = phoneController.text.trim();
     if (country == null || phoneNumber.isEmpty) {
       showSnackBar(context: context, content: 'Fill out all the fields');
       return;
     }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       //Provider ref -> Interact provider with provider
@@ -56,22 +87,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             throw Exception(e.message);
           },
           onCodeSent: ((String verificationId, int? resendToken) async {
-            Navigator.pushNamed(
-              context,
-              OTPScreen.routeName,
-              arguments: verificationId,
-            );
+            onSendPhoneNumberSuccess(verificationId);
           }),
           onCodeAutoRetrievalTimeout: (String verificationId) {
-            showSnackBar(
-              context: context,
-              content: 'OTP Time out, please try again',
-            );
-
-            Navigator.of(context).pop();
+            onSendPhoneNumberFailed('OTP Time out, please try again', true);
           });
     } catch (e) {
-      showSnackBar(context: context, content: e.toString());
+      onSendPhoneNumberFailed(e.toString(), false);
+    }
+  }
+
+  void onSendPhoneNumberSuccess(String verificationId) {
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.pushNamed(
+      context,
+      OTPScreen.routeName,
+      arguments: verificationId,
+    );
+  }
+
+  void onSendPhoneNumberFailed(String error, bool shouldBack) {
+    setState(() {
+      _isLoading = false;
+    });
+
+    showSnackBar(context: context, content: error);
+
+    if (shouldBack) {
+      Navigator.of(context).pop();
     }
   }
 
@@ -117,13 +162,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ],
               ),
               SizedBox(height: size.height * 0.6),
-              SizedBox(
-                width: 90,
-                child: CustomButton(
-                  onPressed: sendPhoneNumber,
-                  text: 'NEXT',
-                ),
-              ),
+              _isLoading
+                  ? const CustomCircularProgressIndicator()
+                  : SizedBox(
+                      width: 90,
+                      child: CustomButton(
+                        onPressed: sendPhoneNumber,
+                        text: 'NEXT',
+                      ),
+                    ),
             ],
           ),
         ),

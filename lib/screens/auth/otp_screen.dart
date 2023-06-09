@@ -8,20 +8,34 @@ import 'package:whatsup/controllers/auth/auth_controller.dart';
 import 'package:whatsup/screens/auth/user_information_screen.dart';
 import 'package:whatsup/utils/colors.dart';
 import 'package:whatsup/utils/utils.dart';
+import 'package:whatsup/widgets/custom_circular_progress_indicator.dart';
 
-class OTPScreen extends ConsumerWidget {
-  //ConsumerWidget = StatelessWidget + Consumer
+class OTPScreen extends ConsumerStatefulWidget {
   static const String routeName = '/otp-screen';
   final String verificationId;
+
   const OTPScreen({
     Key? key,
     required this.verificationId,
   }) : super(key: key);
 
+  @override
+  ConsumerState<OTPScreen> createState() => _OTPScreenState();
+}
+
+class _OTPScreenState extends ConsumerState<OTPScreen> {
+  bool _isLoading = false;
+
   void verifyOTP(WidgetRef ref, BuildContext context, String userOTP) async {
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       await ref.read(authControllerProvider).verifyOTP(
-            verificationId,
+            widget.verificationId,
             userOTP,
           );
 
@@ -33,6 +47,8 @@ class OTPScreen extends ConsumerWidget {
         UserInformationScreen.routeName,
         (route) => false,
       );
+
+      return;
     } on FirebaseAuthException catch (e) {
       print(e.code);
       showSnackBar(
@@ -42,12 +58,17 @@ class OTPScreen extends ConsumerWidget {
 
       if (e.code == 'session-expired') {
         Navigator.pop(context);
+        return;
       }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -79,6 +100,13 @@ class OTPScreen extends ConsumerWidget {
                 },
               ),
             ),
+            if (_isLoading)
+              Column(
+                children: const [
+                  SizedBox(height: 20),
+                  CustomCircularProgressIndicator(),
+                ],
+              )
           ],
         ),
       ),

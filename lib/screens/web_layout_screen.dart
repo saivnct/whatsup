@@ -3,6 +3,7 @@
 //giangtpu@gmail.com
 import 'package:flutter/material.dart';
 import 'package:whatsup/utils/colors.dart';
+import 'package:whatsup/utils/constant.dart';
 import 'package:whatsup/widgets/chat/message_list.dart';
 import 'package:whatsup/widgets/chat_list.dart';
 import 'package:whatsup/widgets/web/web_chat_app_bar.dart';
@@ -36,9 +37,7 @@ class WebLayoutScreen extends StatelessWidget {
                 left: BorderSide(color: dividerColor),
               ),
               image: DecorationImage(
-                image: AssetImage(
-                  "assets/backgroundImage.png",
-                ),
+                image: Constants.chatBackgroundImage,
                 fit: BoxFit.cover,
               ),
             ),

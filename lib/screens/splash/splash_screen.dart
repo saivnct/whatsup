@@ -32,7 +32,7 @@ class SplashScreen extends StatelessWidget {
             ),
             SizedBox(height: size.height / 9),
             Image.asset(
-              'assets/bg.png',
+              'assets/images/bg.png',
               height: 340,
               width: 340,
               color: tabColor,

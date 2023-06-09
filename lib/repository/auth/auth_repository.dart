@@ -5,11 +5,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsup/models/user_model.dart';
 import 'package:whatsup/repository/firebase/firebase_storage_repository.dart';
-import 'package:whatsup/utils/utils.dart';
+import 'package:whatsup/utils/constant.dart';
 
 //Provider ref -> Interact provider with provider
 //Widget ref -> Makes widget interact with provider
@@ -31,7 +30,7 @@ class AuthRepository {
 
   Future<UserModel?> getCurrentUserData() async {
     var userData = await firestore
-        .collection('users')
+        .collection(Constants.collectionUsers)
         .doc(firebaseAuth.currentUser?.uid)
         .get();
 
@@ -78,13 +77,12 @@ class AuthRepository {
     required ProviderRef ref,
   }) async {
     String uid = firebaseAuth.currentUser!.uid;
-    String photoUrl =
-        'https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png';
+    String? photoUrl;
 
     if (profilePic != null) {
       photoUrl =
           await ref.read(firebaseStorageRepositoryProvider).storeFileToFirebase(
-                'profilePic/$uid',
+                '${Constants.storageAvatar}/$uid',
                 profilePic,
               );
     }
@@ -98,11 +96,18 @@ class AuthRepository {
       groupId: [],
     );
 
-    await firestore.collection('users').doc(uid).set(user.toMap());
+    await firestore
+        .collection(Constants.collectionUsers)
+        .doc(uid)
+        .set(user.toMap());
   }
 
   Stream<UserModel> userData(String userId) {
-    return firestore.collection('users').doc(userId).snapshots().map(
+    return firestore
+        .collection(Constants.collectionUsers)
+        .doc(userId)
+        .snapshots()
+        .map(
           (event) => UserModel.fromMap(
             event.data()!,
           ),
@@ -111,10 +116,10 @@ class AuthRepository {
 
   void setUserState(bool isOnline) async {
     await firestore
-        .collection('users')
+        .collection(Constants.collectionUsers)
         .doc(firebaseAuth.currentUser!.uid)
         .update({
-      'isOnline': isOnline,
+      UserModel.fieldIsOnline: isOnline,
     });
   }
 }

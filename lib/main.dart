@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsup/firebase_options.dart';
 import 'package:whatsup/router.dart';
+import 'package:whatsup/screens/auth/user_information_screen.dart';
 import 'package:whatsup/screens/mobile_layout_screen.dart';
 import 'package:whatsup/screens/splash/splash_screen.dart';
 import 'package:whatsup/screens/web_layout_screen.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
       //   webScreenLayout: WebLayoutScreen(),
       // ),
       home: const SplashScreen(),
+      // home: const UserInformationScreen(),
     );
   }
 }
